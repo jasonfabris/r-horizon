@@ -53,18 +53,20 @@
 (def d (map #(Integer/parseInt (subs (time-fmt/unparse fmt-y %1) 2)) xx))
 
 
+(defn next-g [n mean sd]
+  (let [r (Random.)]
+    (repeatedly n #(-> r .nextGaussian (* sd) (+ mean)))))
+
+;;
+
 (defn setup []
   (q/frame-rate 30)
   (q/color-mode :hsb 360 1 1 1)
-  (q/background 270 0.05 0.99)
+  (q/background 220 0.02 0.99)
   ; setup function returns initial state. 
   {:c (map #(Integer/parseInt (time-fmt/unparse fmt-dm %1)) ins)
    :d (map #(Integer/parseInt (time-fmt/unparse fmt-Ym %1)) ins)
    :e (map #(Integer/parseInt (time-fmt/unparse fmt-Ym %1)) ins)})
-
-(defn next-g [n mean sd]
-  (let [r (Random.)]
-    (repeatedly n #(-> r .nextGaussian (* sd) (+ mean)))))
 
 (defn update-state [state]
   (let
@@ -87,7 +89,7 @@
 
   (let [xs (map #(Math/cos (/ %1 %2)) (:e state) x)
         ys (map #(Math/sin (/ %1 (* %2 %3))) (:d state) x (:c state))
-        fills (map #(map_rng [-1 1] [250 100] %1) ys)
+        fills (map #(map_rng [-1 1] [216 100] %1) ys)
         
         ;fill (map_rng (p [1], -1, 1, 90, 320), 58, 90, .25)
         xs (map #(* (/ (q/width) 2) %1) xs)
@@ -102,10 +104,12 @@
         ;;(println (nth pt 2))
         (let [new-pt [(first pt) (second pt)]
               fill-col (nth pt 2)]
-          (q/fill fill-col 0.58 0.9 0.25) ;;fill)
-          (apply #(q/ellipse %1 %2 1 1) new-pt)))
-      ;;(q/ellipse 0 0 200 200)
-      )))
+          (q/fill fill-col 0.54 0.9 0.2) ;;fill)
+          (apply #(q/ellipse %1 %2 1 1) new-pt))))
+    (if (q/key-pressed?)
+      (do
+        (println "saving")
+        (q/save-frame "r_horizon-####.png")))))
 
 (q/defsketch r-horizon
   :title "R Horizons"
