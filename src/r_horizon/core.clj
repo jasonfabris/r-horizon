@@ -7,6 +7,8 @@
 
 (import '(java.util Random))
 
+
+
 (defn time-range
   "Return a lazy sequence of DateTime's from start to end, incremented
   by 'step' units of time."
@@ -82,19 +84,19 @@
      :e (mapv + e rnd0506)}))
 
 (defn draw-state [state]
-  ;; (q/no-loop)
-  ;; (println "c: " (take 8 (:c state)))
-  ;; (println "d: " (take 8 (:d state)))
-  ;; (println "e: " (take 8 (:e state)))
-
+  (if (q/key-pressed?)
+    (do
+      (println "saving")
+      (q/save-frame "C:/Users/Jason/Documents/Art Output/r_horizon-####.tiff")))
+  
   (let [xs (map #(Math/cos (/ %1 %2)) (:e state) x)
         ys (map #(Math/sin (/ %1 (* %2 %3))) (:d state) x (:c state))
-        fills (map #(map_rng [-1 1] [216 100] %1) ys)
-        
+        fills (map #(map_rng [-1 1] [212 108] %1) ys)
+        alphs (map #(map_rng [-1 1] [0.05 0.15] %1) ys)
         ;fill (map_rng (p [1], -1, 1, 90, 320), 58, 90, .25)
         xs (map #(* (/ (q/width) 2) %1) xs)
         ys (map #(* (/ (q/height) 2) %1) ys)
-        pts (map vector xs ys fills)]
+        pts (map vector xs ys fills alphs)]
     ;;(println (take 10 xs) (take 10 ys))
     (q/with-translation [(/ (q/width) 2) (/ (q/height) 2)]
       ;;(q/fill 100 0.5 0.7 0.2)
@@ -103,13 +105,13 @@
       (doseq [pt pts]             
         ;;(println (nth pt 2))
         (let [new-pt [(first pt) (second pt)]
-              fill-col (nth pt 2)]
-          (q/fill fill-col 0.54 0.9 0.2) ;;fill)
-          (apply #(q/ellipse %1 %2 1 1) new-pt))))
-    (if (q/key-pressed?)
-      (do
-        (println "saving")
-        (q/save-frame "r_horizon-####.png")))))
+              fill-col (nth pt 2)
+              alph-col (nth pt 3)]
+          (q/fill fill-col 0.54 0.9 alph-col) ;;fill)
+          ;; TRY SIZE BEING 1 31 instead of 1 1 
+          (apply #(q/ellipse %1 %2 1 1) new-pt)))
+      ))
+  )
 
 (q/defsketch r-horizon
   :title "R Horizons"
